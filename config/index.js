@@ -9,6 +9,11 @@ const logger = require("morgan");
 // https://www.npmjs.com/package/cookie-parser
 const cookieParser = require("cookie-parser");
 
+//! INCLUDING EXPRESS SESSION & CONECT-MONGO
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const MONGO_URI = require('../db/index.js')
+
 // ℹ️ Serves a custom favicon on each request
 // https://www.npmjs.com/package/serve-favicon
 const favicon = require("serve-favicon");
@@ -36,4 +41,24 @@ module.exports = (app) => {
 
   // Handles access to the favicon
   app.use(favicon(path.join(__dirname, "..", "public", "images", "favicon.ico")));
+  
+  //! INICIALIZING SESSION AND MONGO CONNECT
+  app.use(session({
+    secret: process.env.SESSION_SECRET, // palabra que hace un cifrado de las cookies de los usuario
+    saveUninitialized: false, // don't create session until something stored
+    resave: false, //don't save session if unmodified
+    cookie: {
+      maxAge: 7 * 24 * 60 * 60 * 1000 // tiempo de vida en milisegundos de la cookie. Ejemplo de 7 días. OPCIONAL
+    },
+    store: MongoStore.create({
+      mongoUrl: MONGO_URI,
+      ttl: 4 * 24 * 60 * 60 // time to live. Tiempo de vida. En SEGUNDOS. Ejemplo de 4 días. OPCIONAL
+    })
+  }))
+
+
+
+
+
+
 };
